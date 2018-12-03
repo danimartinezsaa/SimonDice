@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SimonDice</string>
+    <string name="ronda">Ronda</string>
+    <string name="Ronda">Ronda:</string>
+    <string name="empezar">Empezar</string>
+    <string name="todo">TODO</string>
+    <string name="restante">Restante:</string>
+</resources>
