@@ -8,15 +8,15 @@ import android.widget.Button
 import org.jetbrains.anko.toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import org.jetbrains.anko.UI
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    val botones=arrayOf("azul","amarillo","verde","rojo")   //Colores
     val secuencia = mutableListOf<String>()                 //Secuncia en ronda actual
-    var ronda=0     //número de ronda
-    var numero=3    //número de luces encendidas
+    var ronda = 0     //número de ronda
+    var numero = 3    //número de luces encendidas
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,89 +28,114 @@ class MainActivity : AppCompatActivity() {
 
             toast("Le has dado a iniciar partida")
 
-            mostrarSecuencia(5)
+            mostrarSecuencia(numero)
 
 
         }
 
     }
 
-    private fun mostrarSecuencia(numero: Int){
-        val random=Random()
-        var aleatorio=0
+    /*
+    Muesta una secuencia de parpadeos
+    @numero: número de parpadeos
+     */
+    private fun mostrarSecuencia(numero: Int) {
+        val random = Random()
+        var aleatorio = 0
+        var encendido = 0L
 
         deshabilitarBotones()
 
-        for(i in 0..numero){
-            aleatorio=random.nextInt(0..4)
-            Log.d("tag","iteracion: $i")
-            when(aleatorio){
-                0->{
-                    Log.d("tag","se enciende azul")
-                    bazul.setBackgroundColor(resources.getColor(R.color.azul_encendido))
-                    GlobalScope.launch {
-                        delay(1500L)
-                        Log.d("tag", "se apaga azul")
-                        bazul.setBackgroundColor(resources.getColor(R.color.azul_apagado))
-                    }
+        for (i in 1..numero) {
+            aleatorio = random.nextInt(4)
+            encendido+=2500L
+            when (aleatorio) {
+                0 -> {
+                    parpadeo(encendido,"azul")
                     secuencia.add("azul")
                 }
-                1->{
-                    Log.d("tag","se enciende amarillo")
-                    bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_encendido))
-                    GlobalScope.launch {
-                        delay(1500L)
-                        Log.d("tag","se apaga amarillo")
-                        bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_apagado))
-                    }
+                1 -> {
+                    parpadeo(encendido,"amarillo")
                     secuencia.add("amarillo")
                 }
-                2->{
-                    Log.d("tag","se enciende verde")
-                    bverde.setBackgroundColor(resources.getColor(R.color.verde_encendido))
-                    GlobalScope.launch {
-                        delay(1500L)
-                        Log.d("tag","se apaga verde")
-                        bverde.setBackgroundColor(resources.getColor(R.color.verde_apagado))
-                    }
+                2 -> {
+                    parpadeo(encendido,"verde")
                     secuencia.add("verde")
                 }
-                3->{
-                    Log.d("tag","se enciende rojo")
-                    brojo.setBackgroundColor(resources.getColor(R.color.rojo_encendido))
-                    GlobalScope.launch {
-                        delay(1500L)
-                        Log.d("tag","se apaga rojo")
-                        brojo.setBackgroundColor(resources.getColor(R.color.rojo_apagado))
-                    }
+                3 -> {
+                    parpadeo(encendido,"rojo")
                     secuencia.add("rojo")
                 }
             }
-            Thread.sleep(2500L)
-            Log.d("tag","iteracion_acabada")
         }
-        Log.d("tag","bucle_acabado")
+
         habilitarBotones()
         secuencia.clear()   //Prueba
     }
-
-    private fun deshabilitarBotones(){
-        bplay.isClickable=false
-        bazul.isClickable=false
-        brojo.isClickable=false
-        bamarillo.isClickable=false
-        bverde.isClickable=false
+    /*
+    Deshabilitar botones
+    */
+    private fun deshabilitarBotones() {
+        bplay.isClickable = false
+        bazul.isClickable = false
+        brojo.isClickable = false
+        bamarillo.isClickable = false
+        bverde.isClickable = false
+    }
+    /*
+    Habilitar botones
+     */
+    private fun habilitarBotones() {
+        bplay.isClickable = true
+        bazul.isClickable = true
+        brojo.isClickable = true
+        bamarillo.isClickable = true
+        bverde.isClickable = true
     }
 
-    private fun habilitarBotones(){
-        bplay.isClickable=true
-        bazul.isClickable=true
-        brojo.isClickable=true
-        bamarillo.isClickable=true
-        bverde.isClickable=true
-    }
-
-    fun Random.nextInt(range: IntRange): Int {
-        return range.start + nextInt(range.last - range.start)
+    /*
+    Realiza el parpadeo de un botón
+    @encendido: Milisegundos de la secuenda a los que se va a encender la luz
+    @color: Color que se va a encender
+     */
+    private fun parpadeo(encendido: Long, color: String) {
+        when (color) {
+            "azul" -> {
+                GlobalScope.launch(Dispatchers.Main) {
+                    delay(encendido)
+                    bazul.setBackgroundColor(resources.getColor(R.color.azul_encendido))
+                    delay(1000L)
+                    bazul.setBackgroundColor(resources.getColor(R.color.azul_apagado))
+                }
+                secuencia.add("azul")
+            }
+            "amarillo" -> {
+                GlobalScope.launch(Dispatchers.Main) {
+                    delay(encendido)
+                    bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_encendido))
+                    delay(1000L)
+                    bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_apagado))
+                }
+                secuencia.add("amarillo")
+            }
+            "verde" -> {
+                GlobalScope.launch(Dispatchers.Main) {
+                    delay(encendido)
+                    bverde.setBackgroundColor(resources.getColor(R.color.verde_encendido))
+                    delay(1000L)
+                    bverde.setBackgroundColor(resources.getColor(R.color.verde_apagado))
+                }
+                secuencia.add("verde")
+            }
+            "rojo" -> {
+                GlobalScope.launch(Dispatchers.Main) {
+                    delay(encendido)
+                    brojo.setBackgroundColor(resources.getColor(R.color.rojo_encendido))
+                    delay(1000L)
+                    brojo.setBackgroundColor(resources.getColor(R.color.rojo_apagado))
+                }
+                secuencia.add("rojo")
+            }
+        }
     }
 }
