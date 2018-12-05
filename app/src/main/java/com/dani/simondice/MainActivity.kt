@@ -2,35 +2,112 @@ package com.dani.simondice
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
 import org.jetbrains.anko.toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import org.jetbrains.anko.UI
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    val secuencia = mutableListOf<String>()                 //Secuncia en ronda actual
+    val secuencia = mutableListOf<String>() //Secuncia en ronda actual
     var ronda = 0     //número de ronda
     var numero = 3    //número de luces encendidas
+    var restante = 0  //número de comprobaciones restantes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        nronda.setText("0")
 
-
-        //Boton Play
         bplay.setOnClickListener {
 
             toast("Le has dado a iniciar partida")
-
+            ronda=1
+            numero=3
+            restante=3
+            nronda.setText(ronda.toString())
+            nrestante.setText("0")
             mostrarSecuencia(numero)
 
+        }
 
+        bazul.setOnClickListener {
+
+            var acierto=comprobar("azul")
+            if(acierto==true){
+                if(secuencia.isEmpty()==true){
+                    numero++
+                    ronda++
+                    nronda.setText(ronda.toString())
+                    mostrarSecuencia(numero)
+                }
+                nrestante.setText(restante.toString())
+            }else{
+                ronda=1
+                numero=3
+                restante=0
+                toast("Has fallado, dale a Play para volver a intentarlo")
+                secuencia.clear()
+            }
+        }
+
+
+        bverde.setOnClickListener {
+            var acierto=comprobar("verde")
+            if(acierto==true){
+                if(secuencia.isEmpty()==true){
+                    numero++
+                    ronda++
+                    nronda.setText(ronda.toString())
+                    mostrarSecuencia(numero)
+                }
+                nrestante.setText(restante.toString())
+            }else{
+                ronda=1
+                numero=3
+                restante=0
+                toast("Has fallado, dale a Play para volver a intentarlo")
+                secuencia.clear()
+            }
+        }
+
+        bamarillo.setOnClickListener {
+            var acierto=comprobar("amarillo")
+            if(acierto==true){
+                if(secuencia.isEmpty()==true){
+                    numero++
+                    ronda++
+                    nronda.setText(ronda.toString())
+                    mostrarSecuencia(numero)
+                }
+                nrestante.setText(restante.toString())
+            }else{
+                ronda=1
+                numero=3
+                restante=0
+                toast("Has fallado, dale a Play para volver a intentarlo")
+                secuencia.clear()
+            }
+        }
+
+        brojo.setOnClickListener {
+            var acierto=comprobar("rojo")
+            if(acierto==true){
+                if(secuencia.isEmpty()==true){
+                    numero++
+                    ronda++
+                    nronda.setText(ronda.toString())
+                    mostrarSecuencia(numero)
+                }
+                nrestante.setText(restante.toString())
+            }else{
+                ronda=1
+                numero=3
+                restante=0
+                toast("Has fallado, dale a Play para volver a intentarlo")
+                secuencia.clear()
+            }
         }
 
     }
@@ -44,6 +121,7 @@ class MainActivity : AppCompatActivity() {
         var aleatorio = 0
         var encendido = 0L
 
+
         deshabilitarBotones()
 
         for (i in 1..numero) {
@@ -51,27 +129,25 @@ class MainActivity : AppCompatActivity() {
             encendido+=2500L
             when (aleatorio) {
                 0 -> {
-                    parpadeo(encendido,"azul")
+                    parpadeo(encendido,"azul",numero,i)
                     secuencia.add("azul")
                 }
                 1 -> {
-                    parpadeo(encendido,"amarillo")
+                    parpadeo(encendido,"amarillo",numero,i)
                     secuencia.add("amarillo")
                 }
                 2 -> {
-                    parpadeo(encendido,"verde")
+                    parpadeo(encendido,"verde",numero,i)
                     secuencia.add("verde")
                 }
                 3 -> {
-                    parpadeo(encendido,"rojo")
+                    parpadeo(encendido,"rojo",numero,i)
                     secuencia.add("rojo")
                 }
             }
         }
-
-        habilitarBotones()
-        secuencia.clear()   //Prueba
     }
+
     /*
     Deshabilitar botones
     */
@@ -82,6 +158,7 @@ class MainActivity : AppCompatActivity() {
         bamarillo.isClickable = false
         bverde.isClickable = false
     }
+
     /*
     Habilitar botones
      */
@@ -98,44 +175,57 @@ class MainActivity : AppCompatActivity() {
     @encendido: Milisegundos de la secuenda a los que se va a encender la luz
     @color: Color que se va a encender
      */
-    private fun parpadeo(encendido: Long, color: String) {
-        when (color) {
-            "azul" -> {
-                GlobalScope.launch(Dispatchers.Main) {
-                    delay(encendido)
+    private fun parpadeo(encendido: Long, color: String,maximo: Int,actual: Int) {
+        GlobalScope.launch(Dispatchers.Main) {
+            delay(encendido)
+            when (color) {
+                "azul" -> {
                     bazul.setBackgroundColor(resources.getColor(R.color.azul_encendido))
                     delay(1000L)
                     bazul.setBackgroundColor(resources.getColor(R.color.azul_apagado))
                 }
-                secuencia.add("azul")
-            }
-            "amarillo" -> {
-                GlobalScope.launch(Dispatchers.Main) {
-                    delay(encendido)
+                "amarillo" -> {
                     bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_encendido))
                     delay(1000L)
                     bamarillo.setBackgroundColor(resources.getColor(R.color.amarillo_apagado))
                 }
-                secuencia.add("amarillo")
-            }
-            "verde" -> {
-                GlobalScope.launch(Dispatchers.Main) {
-                    delay(encendido)
+                "verde" -> {
                     bverde.setBackgroundColor(resources.getColor(R.color.verde_encendido))
                     delay(1000L)
                     bverde.setBackgroundColor(resources.getColor(R.color.verde_apagado))
                 }
-                secuencia.add("verde")
-            }
-            "rojo" -> {
-                GlobalScope.launch(Dispatchers.Main) {
-                    delay(encendido)
+                "rojo" -> {
                     brojo.setBackgroundColor(resources.getColor(R.color.rojo_encendido))
                     delay(1000L)
                     brojo.setBackgroundColor(resources.getColor(R.color.rojo_apagado))
                 }
-                secuencia.add("rojo")
+            }
+            if(actual>=maximo){
+                habilitarBotones()
+                toast("Reproduce la secuencia")
+                restante=numero
+                nrestante.setText(restante.toString())
+
             }
         }
+    }
+
+    /*
+     * Devuelve si el usuario ha acertado o no
+     */
+    private fun comprobar(color: String): Boolean{
+        if(secuencia.isEmpty()==true){
+            return false
+        }else{
+            if(secuencia.get(0).equals(color)){
+                secuencia.removeAt(0)
+                toast("Acierto!")
+                restante--
+                return true
+            }else{
+                return false
+            }
+        }
+
     }
 }
