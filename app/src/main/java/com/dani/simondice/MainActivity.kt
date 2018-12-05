@@ -1,5 +1,6 @@
 package com.dani.simondice
 
+import android.media.MediaPlayer
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import org.jetbrains.anko.toast
@@ -19,10 +20,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         nronda.setText("0")
+        nrestante.setText("0")
 
         bplay.setOnClickListener {
 
-            toast("Le has dado a iniciar partida")
+            toast("Nueva partida!")
+            val mp = MediaPlayer.create(this, R.raw.inicio)
+            mp.start()
             ronda=1
             numero=3
             restante=3
@@ -33,81 +37,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         bazul.setOnClickListener {
-
-            var acierto=comprobar("azul")
-            if(acierto==true){
-                if(secuencia.isEmpty()==true){
-                    numero++
-                    ronda++
-                    nronda.setText(ronda.toString())
-                    mostrarSecuencia(numero)
-                }
-                nrestante.setText(restante.toString())
-            }else{
-                ronda=1
-                numero=3
-                restante=0
-                toast("Has fallado, dale a Play para volver a intentarlo")
-                secuencia.clear()
-            }
+            comprobar("azul")
         }
 
-
         bverde.setOnClickListener {
-            var acierto=comprobar("verde")
-            if(acierto==true){
-                if(secuencia.isEmpty()==true){
-                    numero++
-                    ronda++
-                    nronda.setText(ronda.toString())
-                    mostrarSecuencia(numero)
-                }
-                nrestante.setText(restante.toString())
-            }else{
-                ronda=1
-                numero=3
-                restante=0
-                toast("Has fallado, dale a Play para volver a intentarlo")
-                secuencia.clear()
-            }
+            comprobar("verde")
         }
 
         bamarillo.setOnClickListener {
-            var acierto=comprobar("amarillo")
-            if(acierto==true){
-                if(secuencia.isEmpty()==true){
-                    numero++
-                    ronda++
-                    nronda.setText(ronda.toString())
-                    mostrarSecuencia(numero)
-                }
-                nrestante.setText(restante.toString())
-            }else{
-                ronda=1
-                numero=3
-                restante=0
-                toast("Has fallado, dale a Play para volver a intentarlo")
-                secuencia.clear()
-            }
+            comprobar("amarillo")
         }
 
         brojo.setOnClickListener {
-            var acierto=comprobar("rojo")
-            if(acierto==true){
-                if(secuencia.isEmpty()==true){
-                    numero++
-                    ronda++
-                    nronda.setText(ronda.toString())
-                    mostrarSecuencia(numero)
-                }
-                nrestante.setText(restante.toString())
-            }else{
-                ronda=1
-                numero=3
-                restante=0
-                toast("Has fallado, dale a Play para volver a intentarlo")
-                secuencia.clear()
-            }
+            comprobar("rojo")
         }
 
     }
@@ -213,19 +155,45 @@ class MainActivity : AppCompatActivity() {
     /*
      * Devuelve si el usuario ha acertado o no
      */
-    private fun comprobar(color: String): Boolean{
+    private fun comprobar(color: String){
         if(secuencia.isEmpty()==true){
-            return false
+            ronda=1
+            numero=3
+            restante=0
+            toast("Ohhh...has fallado,vuelve a intentarlo")
+            val mp = MediaPlayer.create(this, R.raw.fallo)
+            mp.start()
+            secuencia.clear()
         }else{
             if(secuencia.get(0).equals(color)){
                 secuencia.removeAt(0)
                 toast("Acierto!")
+                val mp = MediaPlayer.create(this, R.raw.acierto)
+                mp.start()
                 restante--
-                return true
+                if(secuencia.isEmpty()==true){
+                    numero++
+                    ronda++
+                    nronda.setText(ronda.toString())
+                    runBlocking {     // but this expression blocks the main thread
+                        delay(1000L)  // ... while we delay for 2 seconds to keep JVM alive
+                    }
+                    toast("Ronda: $ronda")
+                    val mp = MediaPlayer.create(this, R.raw.next)
+                    mp.start()
+                    mostrarSecuencia(numero)
+                }
+                nrestante.setText(restante.toString())
             }else{
-                return false
+                ronda=1
+                numero=3
+                restante=0
+                toast("Ohhh...has fallado,vuelve a intentarlo")
+                val mp = MediaPlayer.create(this, R.raw.fallo)
+                mp.start()
+                secuencia.clear()
             }
         }
-
     }
+
 }
