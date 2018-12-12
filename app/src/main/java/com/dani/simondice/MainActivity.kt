@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
     var ronda = 0     //número de ronda
     var numero = 3    //número de luces encendidas
     var restante = 0  //número de comprobaciones restantes
+
+    //Objetos para los sonidos
     lateinit var inicio: MediaPlayer
     lateinit var acierto: MediaPlayer
     lateinit var fallo: MediaPlayer
@@ -26,8 +28,8 @@ class MainActivity : AppCompatActivity() {
         nronda.setText("0")
         nrestante.setText("0")
 
+        //Botón play
         bplay.setOnClickListener {
-
             toast("Nueva partida!")
             inicio = MediaPlayer.create(this, R.raw.inicio)
             sonido(inicio,2500)
@@ -37,25 +39,27 @@ class MainActivity : AppCompatActivity() {
             nronda.setText(ronda.toString())
             nrestante.setText("0")
             mostrarSecuencia(numero)
-
         }
 
+        //Botón azul
         bazul.setOnClickListener {
             comprobar("azul")
         }
 
+        //Botón verde
         bverde.setOnClickListener {
             comprobar("verde")
         }
 
+        //Botón amarillo
         bamarillo.setOnClickListener {
             comprobar("amarillo")
         }
 
+        //Botón rojo
         brojo.setOnClickListener {
             comprobar("rojo")
         }
-
     }
 
     /**
@@ -213,6 +217,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.Main) {
             delay(tiempo)
             sonido.stop()
+            sonido.release()
         }
     }
 
