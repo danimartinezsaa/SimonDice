@@ -15,6 +15,10 @@ class MainActivity : AppCompatActivity() {
     var ronda = 0     //número de ronda
     var numero = 3    //número de luces encendidas
     var restante = 0  //número de comprobaciones restantes
+    lateinit var inicio: MediaPlayer
+    lateinit var acierto: MediaPlayer
+    lateinit var fallo: MediaPlayer
+    lateinit var next: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         bplay.setOnClickListener {
 
             toast("Nueva partida!")
-            val mp = MediaPlayer.create(this, R.raw.inicio)
-            mp.start()
+            inicio = MediaPlayer.create(this, R.raw.inicio)
+            sonido(inicio,2500)
             ronda=1
             numero=3
             restante=3
@@ -54,15 +58,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    /*
-    Muesta una secuencia de parpadeos
-    @numero: número de parpadeos
+    /**
+     * Muesta una secuencia de parpadeos
+     * @numero: número de parpadeos que se van a realizar
      */
     private fun mostrarSecuencia(numero: Int) {
         val random = Random()
         var aleatorio = 0
         var encendido = 0L
-
 
         deshabilitarBotones()
 
@@ -90,9 +93,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*
-    Deshabilitar botones
-    */
+    /**
+     * Deshabilita todos los botones
+     */
     private fun deshabilitarBotones() {
         bplay.isClickable = false
         bazul.isClickable = false
@@ -101,8 +104,8 @@ class MainActivity : AppCompatActivity() {
         bverde.isClickable = false
     }
 
-    /*
-    Habilitar botones
+    /**
+     * Habilita todos los botones
      */
     private fun habilitarBotones() {
         bplay.isClickable = true
@@ -112,10 +115,12 @@ class MainActivity : AppCompatActivity() {
         bverde.isClickable = true
     }
 
-    /*
-    Realiza el parpadeo de un botón
-    @encendido: Milisegundos de la secuenda a los que se va a encender la luz
-    @color: Color que se va a encender
+    /**
+     * Realiza el parpadeo del botón @color
+     * @encendido: Milisegundos de la secuenda a los que se va a encender la luz
+     * @color: Color que se va a encender
+     * @maximo: número de luces totales que se van a encender
+     * @actual: número de luz actual que se va a encender respecto a @maximo de luces que se encienden
      */
     private fun parpadeo(encendido: Long, color: String,maximo: Int,actual: Int) {
         GlobalScope.launch(Dispatchers.Main) {
@@ -152,35 +157,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*
-     * Devuelve si el usuario ha acertado o no
+    /**
+     * Comprueba si el usuario, a la hora de pulsar un botón, ha acertado con la siguiente luz de la secuencia.
+     * Realiza una serie de operaciones según haya acertado, haya fallado o no queden comprobaciones restantes.
+     * @color: Botón que pulsó el usuario
      */
     private fun comprobar(color: String){
         if(secuencia.isEmpty()==true){
             ronda=1
             numero=3
             restante=0
-            toast("Ohhh...has fallado,vuelve a intentarlo")
-            val mp = MediaPlayer.create(this, R.raw.fallo)
-            mp.start()
+            toast("Presiona Play para jugar")
+            fallo = MediaPlayer.create(this, R.raw.fallo)
+            sonido(fallo,1000)
             secuencia.clear()
         }else{
             if(secuencia.get(0).equals(color)){
                 secuencia.removeAt(0)
                 toast("Acierto!")
-                val mp = MediaPlayer.create(this, R.raw.acierto)
-                mp.start()
+                acierto = MediaPlayer.create(this, R.raw.acierto)
+                sonido(acierto,700)
                 restante--
                 if(secuencia.isEmpty()==true){
                     numero++
                     ronda++
                     nronda.setText(ronda.toString())
-                    runBlocking {     // but this expression blocks the main thread
-                        delay(1000L)  // ... while we delay for 2 seconds to keep JVM alive
+                    next = MediaPlayer.create(this, R.raw.next)
+                    runBlocking {
+                        toast("Ronda: $ronda")
+                        delay(500L)
+                        sonido(next,1000)
                     }
-                    toast("Ronda: $ronda")
-                    val mp = MediaPlayer.create(this, R.raw.next)
-                    mp.start()
                     mostrarSecuencia(numero)
                 }
                 nrestante.setText(restante.toString())
@@ -189,10 +196,23 @@ class MainActivity : AppCompatActivity() {
                 numero=3
                 restante=0
                 toast("Ohhh...has fallado,vuelve a intentarlo")
-                val mp = MediaPlayer.create(this, R.raw.fallo)
-                mp.start()
+                fallo = MediaPlayer.create(this, R.raw.fallo)
+                sonido(fallo,1000)
                 secuencia.clear()
             }
+        }
+    }
+
+    /**
+     * Recibe un sonido y lo reproduce durante un tiempo determinado
+     * @sonido: MediaPlayer con el sonido que se va a reproducir
+     * @tiempo: Tiempo en el cuál se va a reproducir @sonido
+     */
+    private fun sonido(sonido: MediaPlayer,tiempo: Long){
+        sonido.start()
+        GlobalScope.launch(Dispatchers.Main) {
+            delay(tiempo)
+            sonido.stop()
         }
     }
 
