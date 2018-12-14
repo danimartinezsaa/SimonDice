@@ -11,7 +11,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    val secuencia = mutableListOf<String>() //Secuncia en ronda actual
+    var secuencia = ArrayList<String>() //Secuncia en ronda actual
     var ronda = 0     //número de ronda
     var numero = 3    //número de luces encendidas
     var restante = 0  //número de comprobaciones restantes
@@ -22,11 +22,34 @@ class MainActivity : AppCompatActivity() {
     lateinit var fallo: MediaPlayer
     lateinit var next: MediaPlayer
 
+    /**
+     * Guarda el estado de las variables cuando el sistema destruye la Activity y más adelante la restaura.
+     */
+    override fun onSaveInstanceState(guardarEstado: Bundle) {
+        super.onSaveInstanceState(guardarEstado)
+        guardarEstado.putInt("ronda",ronda)
+        guardarEstado.putInt("numero", numero)
+        guardarEstado.putInt("restante", restante)
+    }
+
+    /**
+     * Restaura el estado de las variables cuando restaura la Activity
+     */
+    override fun onRestoreInstanceState(recEstado: Bundle) {
+        super.onRestoreInstanceState(recEstado)
+        ronda = recEstado.getInt("ronda")
+        numero = recEstado.getInt("numero")
+        restante= recEstado.getInt("restante")
+
+        nronda.setText(ronda.toString())
+        nrestante.setText(restante.toString())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        nronda.setText("0")
-        nrestante.setText("0")
+        nronda.setText(ronda.toString())
+        nrestante.setText(restante.toString())
 
         //Botón play
         bplay.setOnClickListener {
@@ -67,16 +90,15 @@ class MainActivity : AppCompatActivity() {
      * @numero: número de parpadeos que se van a realizar
      */
     private fun mostrarSecuencia(numero: Int) {
-        val random = Random()
-        var aleatorio = 0
+
         var encendido = 0L
 
         deshabilitarBotones()
 
         for (i in 1..numero) {
-            aleatorio = random.nextInt(4)
+            val random = Random().nextInt(4)
             encendido+=2500L
-            when (aleatorio) {
+            when (random) {
                 0 -> {
                     parpadeo(encendido,"azul",numero,i)
                     secuencia.add("azul")
